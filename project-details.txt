@@ -1,0 +1,56 @@
+Fincalci Pro - Project Details
+=============================
+
+Overview / Working
+------------------
+Fincalci Pro is a modern, mobile-friendly web application that provides a suite of financial calculators for Indian users. It is built using React (with Vite or Next.js), Tailwind CSS, and modular UI components. The app is designed for fast, accurate, and user-friendly financial calculations.
+
+Main Functions
+--------------
+- Calculate GST (Goods and Services Tax) for inclusive/exclusive scenarios
+- Calculate EMI (Equated Monthly Installment) for loans
+- Estimate income tax based on Indian tax slabs
+- Validate PAN numbers
+- Check loan eligibility
+- Compare different loan options
+- Calculate FD/RD maturity and interest
+- Calculate PPF/EPF returns
+- Perform percentage calculations (X% of Y, X is what % of Y, % increase/decrease)
+- Calculate time duration between dates
+- Check age eligibility for jobs
+- Calculate merit score based on weighted exams
+
+Types of Calculators
+--------------------
+- GST Calculator
+- EMI Calculator
+- Tax Estimator
+- PAN Validator
+- Loan Eligibility Calculator
+- Loan Comparison Tool
+- FD/RD Calculator
+- PPF/EPF Calculator
+- Percentage Calculator (multi-mode)
+- Time Duration Calculator
+- Age Eligibility Calculator
+- Merit Calculator
+
+Key Features
+------------
+- Mobile-first, responsive design
+- Modern UI with Tailwind CSS and Lucide icons
+- Tabbed navigation for quick switching between calculators
+- Each calculator is modular and self-contained
+- Real-time validation and error feedback
+- Color-coded, animated result cards
+- PDF export for calculation results
+- SEO-optimized with meta tags and structured data
+- Accessible, semantic HTML
+- Sticky/fixed or modern footer with animated developer credit
+- Internal links and FAQ for user guidance
+
+Developer
+---------
+- Project by Ashish Kumar (2025)
+
+For more details, see the codebase or visit the live site. 
