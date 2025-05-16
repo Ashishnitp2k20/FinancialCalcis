@@ -17,6 +17,20 @@ A comprehensive financial calculator application built with React, TypeScript, a
 - **FD/RD Calculator**: Calculate returns on Fixed and Recurring Deposits
 - **PPF/EPF Calculator**: Calculate corpus growth for PPF and EPF investments
 
+## Changelog
+
+### [Latest Update - March 2024]
+- Added Reset button functionality to all calculators for better user experience
+- Replaced dollar ($) icons with Indian Rupee (₹) icons throughout the application
+- Improved UI consistency across all calculator components
+- Enhanced mobile responsiveness for calculator interfaces
+
+### [Previous Updates]
+- Initial release with core calculator functionality
+- Implementation of all basic financial calculators
+- Mobile-responsive design implementation
+- Integration of Shadcn UI components
+
 ## Tech Stack
 
 - React
