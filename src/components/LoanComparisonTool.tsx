@@ -5,7 +5,18 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Calculator, Copy, FileDown, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import * as html2pdf from 'html2pdf.js';
+ // import * as html2pdf from 'html2pdf.js';
+
+// remove this: import html2pdf from "html2pdf.js";
+
+const exportPDF = async () => {
+  const html2pdf = (await import('html2pdf.js')).default;
+
+  const element = document.getElementById("pdf-content");
+  if (element) {
+    html2pdf().from(element).save();
+  }
+};
 
 const STORAGE_KEY = 'loanComparisonCalcState';
 
