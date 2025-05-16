@@ -142,7 +142,10 @@ const LoanComparisonTool = () => {
     if (!resultRef.current) return;
     
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
+      // Load html2pdf.js dynamically
+      const html2pdfModule = await import('html2pdf.js/dist/html2pdf.bundle.min.js');
+      const html2pdf = html2pdfModule.default;
+      
       const element = resultRef.current;
       const opt = {
         margin: 1,
@@ -152,10 +155,11 @@ const LoanComparisonTool = () => {
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
 
-      await html2pdf().set(opt).from(element).save();
+      const pdf = html2pdf().set(opt);
+      await pdf.from(element).save();
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast.error('Failed to generate PDF');
+      toast.error('Failed to generate PDF. Please try again.');
     }
   };
 
