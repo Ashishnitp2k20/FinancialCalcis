@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Calculator } from 'lucide-react';
+import { Calculator, Copy, FileDown, RotateCcw } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
+import { toast } from 'sonner';
+import * as html2pdf from 'html2pdf.js';
+
+const STORAGE_KEY = 'loanEligibilityCalcState';
 
 const LoanEligibilityCalculator = () => {
   const [income, setIncome] = useState('');
@@ -14,6 +18,40 @@ const LoanEligibilityCalculator = () => {
   const [eligibleEmi, setEligibleEmi] = useState<number | null>(null);
   const [eligibleLoan, setEligibleLoan] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setIncome(state.income || '');
+        setExistingEmi(state.existingEmi || '');
+        setTenure(state.tenure || '');
+        setRate(state.rate || '');
+        setEligibleEmi(state.eligibleEmi ?? null);
+        setEligibleLoan(state.eligibleLoan ?? null);
+        setError(state.error || '');
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
+
+  // Save to localStorage on change
+  useEffect(() => {
+    const state = {
+      income,
+      existingEmi,
+      tenure,
+      rate,
+      eligibleEmi,
+      eligibleLoan,
+      error,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [income, existingEmi, tenure, rate, eligibleEmi, eligibleLoan, error]);
 
   const calculateEligibility = () => {
     const monthlyIncome = parseFloat(income);
@@ -41,6 +79,39 @@ const LoanEligibilityCalculator = () => {
     } else {
       setEligibleLoan(0);
     }
+  };
+
+  const resetCalculator = () => {
+    setIncome('');
+    setExistingEmi('');
+    setTenure('');
+    setRate('');
+    setEligibleEmi(null);
+    setEligibleLoan(null);
+    setError('');
+  };
+
+  const copyResults = () => {
+    if (!eligibleEmi || !eligibleLoan) return;
+    
+    const text = `Loan Eligibility Results:\nEligible EMI: ₹${eligibleEmi.toLocaleString(undefined, { maximumFractionDigits: 0 })}\nEligible Loan Amount: ₹${eligibleLoan.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    navigator.clipboard.writeText(text);
+    toast.success('Results copied to clipboard!');
+  };
+
+  const exportToPDF = () => {
+    if (!resultRef.current) return;
+    
+    const element = resultRef.current;
+    const opt = {
+      margin: 1,
+      filename: 'loan-eligibility-results.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
   };
 
   return (
@@ -73,9 +144,24 @@ const LoanEligibilityCalculator = () => {
               <Input type="number" value={rate} onChange={e => setRate(e.target.value)} placeholder="Enter annual interest rate" className="input-focus-effect" />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateEligibility}>Calculate Eligibility</Button>
+            <div className="flex flex-col sm:flex-row gap-2 mt-6">
+              <Button 
+                onClick={calculateEligibility}
+                className="flex-1 bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
+              >
+                Calculate
+              </Button>
+              <Button 
+                onClick={resetCalculator}
+                variant="outline"
+                className="flex-1"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset
+              </Button>
+            </div>
             {eligibleEmi !== null && eligibleLoan !== null && (
-              <div className="mt-6 space-y-4 p-4 bg-gst-light-purple/20 rounded-lg">
+              <div ref={resultRef} className="mt-6 space-y-4 p-4 bg-gst-light-purple/20 rounded-lg">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Eligible EMI:</span>
                   <span className="font-semibold text-gst-purple">₹{eligibleEmi.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
@@ -83,6 +169,10 @@ const LoanEligibilityCalculator = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Eligible Loan Amount:</span>
                   <span className="font-semibold text-gst-purple">₹{eligibleLoan.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="outline" onClick={copyResults}>Copy</Button>
+                  <Button variant="secondary" onClick={exportToPDF}>Export as PDF</Button>
                 </div>
               </div>
             )}

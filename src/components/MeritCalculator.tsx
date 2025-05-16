@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Award } from 'lucide-react';
+import jsPDF from 'jspdf';
+
+const STORAGE_KEY = 'meritCalcState';
 
 const MeritCalculator = () => {
   const [mainsScore, setMainsScore] = useState('');
@@ -14,6 +17,39 @@ const MeritCalculator = () => {
   const [breakdown, setBreakdown] = useState('');
   const [error, setError] = useState('');
   const [showResult, setShowResult] = useState(false);
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setMainsScore(state.mainsScore || '');
+        setInterviewScore(state.interviewScore || '');
+        setMainsWeight(state.mainsWeight || '');
+        setInterviewWeight(state.interviewWeight || '');
+        setResult(state.result || '');
+        setBreakdown(state.breakdown || '');
+        setShowResult(state.showResult || false);
+      } catch (e) {
+        console.error('Error loading saved state:', e);
+      }
+    }
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    const state = {
+      mainsScore,
+      interviewScore,
+      mainsWeight,
+      interviewWeight,
+      result,
+      breakdown,
+      showResult,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [mainsScore, interviewScore, mainsWeight, interviewWeight, result, breakdown, showResult]);
 
   const reset = () => {
     setMainsScore('');
@@ -51,6 +87,23 @@ const MeritCalculator = () => {
       `🧮 Breakdown:\n- Mains: ${mains} × ${mainsW}% = ${mainsPart.toFixed(2)}\n- Interview: ${interview} × ${interviewW}% = ${interviewPart.toFixed(2)}\n- Final Merit Score = ${merit} / 100`
     );
     setShowResult(true);
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Merit Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Mains Score: ${mainsScore}`, 14, 35);
+    doc.text(`Interview Score: ${interviewScore}`, 14, 45);
+    doc.text(`Mains Weight: ${mainsWeight}%`, 14, 55);
+    doc.text(`Interview Weight: ${interviewWeight}%`, 14, 65);
+    doc.text(`Result: ${result}`, 14, 75);
+    doc.text('Breakdown:', 14, 85);
+    breakdown.split('\n').forEach((line, idx) => {
+      doc.text(line, 18, 95 + idx * 10);
+    });
+    doc.save('Merit-Calculator-Result.pdf');
   };
 
   return (
@@ -155,6 +208,10 @@ const MeritCalculator = () => {
                       {breakdown.split('\n').map((line, idx) => (
                         <div key={idx} className="text-gray-700 text-base mb-1 whitespace-pre-line">{line}</div>
                       ))}
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button type="button" variant="outline" onClick={reset}>Reset</Button>
+                      <Button type="button" variant="secondary" onClick={handleExportPDF}>Export as PDF</Button>
                     </div>
                   </>
                 )}

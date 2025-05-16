@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Calculator } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
+import jsPDF from 'jspdf';
 
 const MODES = [
   {
@@ -24,6 +25,8 @@ const MODES = [
   },
 ];
 
+const STORAGE_KEY = 'percentageCalcState';
+
 const PercentageCalculator = () => {
   const [mode, setMode] = useState('percentOf');
   const [input1, setInput1] = useState('');
@@ -32,6 +35,37 @@ const PercentageCalculator = () => {
   const [summary, setSummary] = useState('');
   const [error, setError] = useState('');
   const [showResult, setShowResult] = useState(false);
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setMode(state.mode || 'percentOf');
+        setInput1(state.input1 || '');
+        setInput2(state.input2 || '');
+        setResult(state.result || '');
+        setSummary(state.summary || '');
+        setShowResult(state.showResult || false);
+      } catch (e) {
+        console.error('Error loading saved state:', e);
+      }
+    }
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    const state = {
+      mode,
+      input1,
+      input2,
+      result,
+      summary,
+      showResult,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [mode, input1, input2, result, summary, showResult]);
 
   const reset = () => {
     setInput1('');
@@ -80,6 +114,19 @@ const PercentageCalculator = () => {
     setResult(res);
     setSummary(sum);
     setShowResult(true);
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Percentage Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Mode: ${MODES.find(m => m.key === mode)?.label || ''}`, 14, 35);
+    doc.text(`Input 1: ${input1}`, 14, 45);
+    doc.text(`Input 2: ${input2}`, 14, 55);
+    doc.text(`Result: ${result}`, 14, 65);
+    doc.text(`Summary: ${summary}`, 14, 75);
+    doc.save('Percentage-Calculator-Result.pdf');
   };
 
   // Dynamic input placeholders and labels
@@ -245,6 +292,11 @@ const PercentageCalculator = () => {
                     {error}
                   </div>
                 )}
+                {/* New Buttons */}
+                <div className="flex gap-2 mt-4">
+                  <Button type="button" variant="outline" onClick={reset}>Reset</Button>
+                  <Button type="button" variant="secondary" onClick={handleExportPDF}>Export as PDF</Button>
+                </div>
               </div>
             </div>
           </CardContent>

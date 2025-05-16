@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Calculator } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
+import jsPDF from 'jspdf';
 
 const compoundingOptions = [
   { label: 'Yearly', value: 1 },
@@ -13,6 +14,8 @@ const compoundingOptions = [
   { label: 'Quarterly', value: 4 },
   { label: 'Monthly', value: 12 },
 ];
+
+const STORAGE_KEY = 'fdRdCalcState';
 
 const FdRdCalculator = () => {
   // FD State
@@ -28,6 +31,51 @@ const FdRdCalculator = () => {
   const [rdResult, setRdResult] = useState<{ maturity: number; invested: number; interest: number } | null>(null);
   // Tab
   const [activeTab, setActiveTab] = useState('fd');
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        // FD State
+        setFdPrincipal(state.fdPrincipal || '');
+        setFdRate(state.fdRate || '');
+        setFdTenure(state.fdTenure || '');
+        setFdCompounding(state.fdCompounding || 1);
+        setFdResult(state.fdResult || null);
+        // RD State
+        setRdDeposit(state.rdDeposit || '');
+        setRdRate(state.rdRate || '');
+        setRdTenure(state.rdTenure || '');
+        setRdResult(state.rdResult || null);
+        // Tab
+        setActiveTab(state.activeTab || 'fd');
+      } catch (e) {
+        console.error('Error loading saved state:', e);
+      }
+    }
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    const state = {
+      // FD State
+      fdPrincipal,
+      fdRate,
+      fdTenure,
+      fdCompounding,
+      fdResult,
+      // RD State
+      rdDeposit,
+      rdRate,
+      rdTenure,
+      rdResult,
+      // Tab
+      activeTab,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [fdPrincipal, fdRate, fdTenure, fdCompounding, fdResult, rdDeposit, rdRate, rdTenure, rdResult, activeTab]);
 
   // FD Calculation
   const calculateFD = () => {
@@ -52,6 +100,50 @@ const FdRdCalculator = () => {
     const invested = P * n;
     const interest = maturity - invested;
     setRdResult({ maturity, invested, interest });
+  };
+
+  const resetFD = () => {
+    setFdPrincipal('');
+    setFdRate('');
+    setFdTenure('');
+    setFdCompounding(1);
+    setFdResult(null);
+  };
+  const resetRD = () => {
+    setRdDeposit('');
+    setRdRate('');
+    setRdTenure('');
+    setRdResult(null);
+  };
+
+  const handleExportFDPDF = () => {
+    if (!fdResult) return;
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('FD Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Principal: ${fdPrincipal}`, 14, 35);
+    doc.text(`Rate: ${fdRate}%`, 14, 45);
+    doc.text(`Tenure: ${fdTenure} years`, 14, 55);
+    doc.text(`Compounding: ${compoundingOptions.find(o => o.value === fdCompounding)?.label || ''}`, 14, 65);
+    doc.text(`Maturity: ₹${fdResult.maturity.toLocaleString()}`, 14, 75);
+    doc.text(`Invested: ₹${fdResult.invested.toLocaleString()}`, 14, 85);
+    doc.text(`Interest: ₹${fdResult.interest.toLocaleString()}`, 14, 95);
+    doc.save('FD-Calculator-Result.pdf');
+  };
+  const handleExportRDPDF = () => {
+    if (!rdResult) return;
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('RD Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Monthly Deposit: ${rdDeposit}`, 14, 35);
+    doc.text(`Rate: ${rdRate}%`, 14, 45);
+    doc.text(`Tenure: ${rdTenure} years`, 14, 55);
+    doc.text(`Maturity: ₹${rdResult.maturity.toLocaleString()}`, 14, 65);
+    doc.text(`Invested: ₹${rdResult.invested.toLocaleString()}`, 14, 75);
+    doc.text(`Interest: ₹${rdResult.interest.toLocaleString()}`, 14, 85);
+    doc.save('RD-Calculator-Result.pdf');
   };
 
   return (
@@ -95,6 +187,7 @@ const FdRdCalculator = () => {
                 </div>
                 <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateFD}>Calculate FD</Button>
                 {fdResult && (
+                  <>
                   <div className="mt-6 space-y-4 p-4 bg-gst-light-purple/20 rounded-lg">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700">Maturity Amount:</span>
@@ -109,6 +202,11 @@ const FdRdCalculator = () => {
                       <span className="font-semibold text-gst-purple">₹{fdResult.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
                   </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button type="button" variant="outline" onClick={resetFD}>Reset</Button>
+                    <Button type="button" variant="secondary" onClick={handleExportFDPDF}>Export as PDF</Button>
+                  </div>
+                  </>
                 )}
               </div>
             </TabsContent>
@@ -128,6 +226,7 @@ const FdRdCalculator = () => {
                 </div>
                 <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateRD}>Calculate RD</Button>
                 {rdResult && (
+                  <>
                   <div className="mt-6 space-y-4 p-4 bg-gst-light-purple/20 rounded-lg">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700">Maturity Amount:</span>
@@ -142,6 +241,11 @@ const FdRdCalculator = () => {
                       <span className="font-semibold text-gst-purple">₹{rdResult.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
                   </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button type="button" variant="outline" onClick={resetRD}>Reset</Button>
+                    <Button type="button" variant="secondary" onClick={handleExportRDPDF}>Export as PDF</Button>
+                  </div>
+                  </>
                 )}
               </div>
             </TabsContent>

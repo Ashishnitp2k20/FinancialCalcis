@@ -10,6 +10,9 @@ import { Calculator, Repeat } from 'lucide-react';
 import GstResultCard from './GstResultCard';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import CalculatorBanner from './CalculatorBanner';
+import jsPDF from 'jspdf';
+
+const STORAGE_KEY = 'gstCalcState';
 
 const GstCalculator = () => {
   const [baseAmount, setBaseAmount] = useState<string>('');
@@ -21,6 +24,39 @@ const GstCalculator = () => {
   const [error, setError] = useState<string>('');
   const [calculationMode, setCalculationMode] = useState<'base' | 'total'>('base');
   const [inputLabel, setInputLabel] = useState<string>('Amount');
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setBaseAmount(state.baseAmount || '');
+        setGstRate(state.gstRate || '18');
+        setIsInclusive(state.isInclusive || false);
+        setGstAmount(state.gstAmount || 0);
+        setTotalAmount(state.totalAmount || 0);
+        setCalculationPerformed(state.calculationPerformed || false);
+        setCalculationMode(state.calculationMode || 'base');
+      } catch (e) {
+        console.error('Error loading saved state:', e);
+      }
+    }
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    const state = {
+      baseAmount,
+      gstRate,
+      isInclusive,
+      gstAmount,
+      totalAmount,
+      calculationPerformed,
+      calculationMode,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [baseAmount, gstRate, isInclusive, gstAmount, totalAmount, calculationPerformed, calculationMode]);
 
   // Update input label when calculation mode changes
   useEffect(() => {
@@ -129,6 +165,30 @@ const GstCalculator = () => {
     } else {
       calculateBaseFromTotal(parsedAmount, parseFloat(gstRate));
     }
+  };
+
+  const reset = () => {
+    setBaseAmount('');
+    setGstRate('18');
+    setIsInclusive(false);
+    setGstAmount(0);
+    setTotalAmount(0);
+    setCalculationPerformed(false);
+    setError('');
+    setCalculationMode('base');
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('GST Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Calculation Mode: ${calculationMode === 'base' ? 'Actual → Total' : 'Total → Actual'}`, 14, 35);
+    doc.text(`Amount: ${baseAmount}`, 14, 45);
+    doc.text(`GST Rate: ${gstRate}%`, 14, 55);
+    doc.text(`GST Amount: ${gstAmount.toFixed(2)}`, 14, 65);
+    doc.text(`Total Amount: ${totalAmount.toFixed(2)}`, 14, 75);
+    doc.save('GST-Calculator-Result.pdf');
   };
 
   return (
@@ -250,6 +310,10 @@ const GstCalculator = () => {
             gstRate={parseFloat(gstRate)}
             isInclusive={isInclusive}
           />
+          <div className="flex gap-2 mt-4">
+            <Button type="button" variant="outline" onClick={reset}>Reset</Button>
+            <Button type="button" variant="secondary" onClick={handleExportPDF}>Export as PDF</Button>
+          </div>
         </div>
       )}
     </div>

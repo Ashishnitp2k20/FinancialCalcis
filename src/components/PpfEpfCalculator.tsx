@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Calculator } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
+import jsPDF from 'jspdf';
+
+const STORAGE_KEY = 'ppfEpfCalcState';
 
 const PpfEpfCalculator = () => {
   // PPF State
@@ -22,6 +25,53 @@ const PpfEpfCalculator = () => {
   const [epfResult, setEpfResult] = useState<any[]>([]);
   // Tab
   const [activeTab, setActiveTab] = useState('ppf');
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        // PPF State
+        setPpfContribution(state.ppfContribution || '');
+        setPpfRate(state.ppfRate || '7.1');
+        setPpfTenure(state.ppfTenure || '15');
+        setPpfResult(state.ppfResult || []);
+        // EPF State
+        setEpfSalary(state.epfSalary || '');
+        setEpfEmpPercent(state.epfEmpPercent || '12');
+        setEpfErPercent(state.epfErPercent || '12');
+        setEpfRate(state.epfRate || '8.1');
+        setEpfYears(state.epfYears || '15');
+        setEpfResult(state.epfResult || []);
+        // Tab
+        setActiveTab(state.activeTab || 'ppf');
+      } catch (e) {
+        console.error('Error loading saved state:', e);
+      }
+    }
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    const state = {
+      // PPF State
+      ppfContribution,
+      ppfRate,
+      ppfTenure,
+      ppfResult,
+      // EPF State
+      epfSalary,
+      epfEmpPercent,
+      epfErPercent,
+      epfRate,
+      epfYears,
+      epfResult,
+      // Tab
+      activeTab,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [ppfContribution, ppfRate, ppfTenure, ppfResult, epfSalary, epfEmpPercent, epfErPercent, epfRate, epfYears, epfResult, activeTab]);
 
   // PPF Calculation
   const calculatePPF = () => {
@@ -64,6 +114,54 @@ const PpfEpfCalculator = () => {
     setEpfResult(result);
   };
 
+  const resetPPF = () => {
+    setPpfContribution('');
+    setPpfRate('7.1');
+    setPpfTenure('15');
+    setPpfResult([]);
+  };
+  const resetEPF = () => {
+    setEpfSalary('');
+    setEpfEmpPercent('12');
+    setEpfErPercent('12');
+    setEpfRate('8.1');
+    setEpfYears('15');
+    setEpfResult([]);
+  };
+
+  const handleExportPPFPDF = () => {
+    if (!ppfResult.length) return;
+    const last = ppfResult[ppfResult.length - 1];
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('PPF Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Annual Contribution: ${ppfContribution}`, 14, 35);
+    doc.text(`Rate: ${ppfRate}%`, 14, 45);
+    doc.text(`Tenure: ${ppfTenure} years`, 14, 55);
+    doc.text(`Final Corpus: ₹${last.corpus.toLocaleString()}`, 14, 65);
+    doc.text(`Total Contribution: ₹${last.total.toLocaleString()}`, 14, 75);
+    doc.text(`Interest: ₹${last.interest.toLocaleString()}`, 14, 85);
+    doc.save('PPF-Calculator-Result.pdf');
+  };
+  const handleExportEPFPDF = () => {
+    if (!epfResult.length) return;
+    const last = epfResult[epfResult.length - 1];
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('EPF Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Monthly Salary: ${epfSalary}`, 14, 35);
+    doc.text(`Employee %: ${epfEmpPercent}`, 14, 45);
+    doc.text(`Employer %: ${epfErPercent}`, 14, 55);
+    doc.text(`Rate: ${epfRate}%`, 14, 65);
+    doc.text(`Years: ${epfYears}`, 14, 75);
+    doc.text(`Final Corpus: ₹${last.corpus.toLocaleString()}`, 14, 85);
+    doc.text(`Total Contribution: ₹${last.total.toLocaleString()}`, 14, 95);
+    doc.text(`Interest: ₹${last.interest.toLocaleString()}`, 14, 105);
+    doc.save('EPF-Calculator-Result.pdf');
+  };
+
   return (
     <div className="flex flex-col items-center w-full gap-6">
       <CalculatorBanner />
@@ -97,6 +195,7 @@ const PpfEpfCalculator = () => {
                 </div>
                 <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculatePPF}>Calculate PPF</Button>
                 {ppfResult.length > 0 && (
+                  <>
                   <div className="overflow-x-auto mt-6">
                     <table className="min-w-full text-sm text-left border rounded-lg overflow-hidden">
                       <thead className="bg-gst-light-purple/40">
@@ -133,6 +232,11 @@ const PpfEpfCalculator = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button type="button" variant="outline" onClick={resetPPF}>Reset</Button>
+                    <Button type="button" variant="secondary" onClick={handleExportPPFPDF}>Export as PDF</Button>
+                  </div>
+                  </>
                 )}
               </div>
             </TabsContent>
@@ -160,6 +264,7 @@ const PpfEpfCalculator = () => {
                 </div>
                 <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateEPF}>Calculate EPF</Button>
                 {epfResult.length > 0 && (
+                  <>
                   <div className="overflow-x-auto mt-6">
                     <table className="min-w-full text-sm text-left border rounded-lg overflow-hidden">
                       <thead className="bg-gst-light-purple/40">
@@ -196,6 +301,11 @@ const PpfEpfCalculator = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button type="button" variant="outline" onClick={resetEPF}>Reset</Button>
+                    <Button type="button" variant="secondary" onClick={handleExportEPFPDF}>Export as PDF</Button>
+                  </div>
+                  </>
                 )}
               </div>
             </TabsContent>

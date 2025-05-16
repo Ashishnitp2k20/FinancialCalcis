@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import GstCalculator from '@/components/GstCalculator';
 import GstTypesTable from '@/components/GstTypesTable';
 import LoanEmiCalculator from '@/components/LoanEmiCalculator';
@@ -18,10 +18,16 @@ import AgeEligibilityCalculator from '@/components/AgeEligibilityCalculator';
 import MeritCalculator from '@/components/MeritCalculator';
 import { Helmet } from 'react-helmet';
 
+const TAB_KEY = 'fincalciActiveTab';
+
 const Index = () => {
   const tabsListRef = useRef<HTMLDivElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('gst');
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem(TAB_KEY) || 'gst');
+
+  useEffect(() => {
+    localStorage.setItem(TAB_KEY, activeTab);
+  }, [activeTab]);
 
   // Scroll handler for arrows
   const scrollTabs = (direction: 'left' | 'right') => {

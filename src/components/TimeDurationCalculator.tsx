@@ -4,6 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
+import { Button } from '@/components/ui/button';
+import jsPDF from 'jspdf';
+
+const STORAGE_KEY = 'timeDurationCalcState';
 
 const TimeDurationCalculator = () => {
   const [startDate, setStartDate] = useState<string>('');
@@ -15,6 +19,33 @@ const TimeDurationCalculator = () => {
   }>({ years: 0, months: 0, days: 0 });
   const [error, setError] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setStartDate(state.startDate || '');
+        setEndDate(state.endDate || '');
+        setDuration(state.duration || { years: 0, months: 0, days: 0 });
+        setShowResult(state.showResult || false);
+      } catch (e) {
+        console.error('Error loading saved state:', e);
+      }
+    }
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    const state = {
+      startDate,
+      endDate,
+      duration,
+      showResult,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [startDate, endDate, duration, showResult]);
 
   const calculateDuration = () => {
     if (!startDate || !endDate) {
@@ -70,6 +101,25 @@ const TimeDurationCalculator = () => {
       setError('');
     }
   }, [startDate, endDate]);
+
+  const reset = () => {
+    setStartDate('');
+    setEndDate('');
+    setDuration({ years: 0, months: 0, days: 0 });
+    setShowResult(false);
+    setError('');
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Time Duration Calculator Result', 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Start Date: ${startDate}`, 14, 35);
+    doc.text(`End Date: ${endDate}`, 14, 45);
+    doc.text(`Duration: ${duration.years} years, ${duration.months} months, ${duration.days} days`, 14, 55);
+    doc.save('Time-Duration-Calculator-Result.pdf');
+  };
 
   return (
     <div className="flex flex-col items-center w-full gap-6">
@@ -130,6 +180,7 @@ const TimeDurationCalculator = () => {
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold text-gray-700 mb-2">Your Duration</h2>
                 {showResult && !error && (
+                  <>
                   <div
                     className="mt-2 p-5 rounded-2xl bg-green-50 border border-green-100 shadow-sm animate-fade-in"
                     style={{ transition: 'opacity 0.5s' }}
@@ -146,6 +197,11 @@ const TimeDurationCalculator = () => {
                       </span>
                     </div>
                   </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button type="button" variant="outline" onClick={reset}>Reset</Button>
+                    <Button type="button" variant="secondary" onClick={handleExportPDF}>Export as PDF</Button>
+                  </div>
+                  </>
                 )}
                 {error && (
                   <div className="mt-2 p-5 rounded-2xl bg-red-50 border border-red-100 shadow-sm animate-fade-in">
