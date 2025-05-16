@@ -7,7 +7,7 @@ import PanValidator from '@/components/PanValidator';
 import Navbar from '@/components/Navbar';
 import FAQ from '@/components/FAQ';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calculator, Receipt, CreditCard, FileCheck, ChevronLeft, ChevronRight, Percent, Clock, UserCheck, Award } from 'lucide-react';
+import { Calculator, IndianRupee, CreditCard, FileCheck, ChevronLeft, ChevronRight, Percent, Clock, UserCheck, Award } from 'lucide-react';
 import LoanEligibilityCalculator from '@/components/LoanEligibilityCalculator';
 import LoanComparisonTool from '@/components/LoanComparisonTool';
 import FdRdCalculator from '@/components/FdRdCalculator';
@@ -44,7 +44,7 @@ const Index = () => {
   const tabOptions = [
     { value: 'gst', label: 'GST Calculator', icon: <Calculator className="h-4 w-4" /> },
     { value: 'emi', label: 'EMI Calculator', icon: <CreditCard className="h-4 w-4" /> },
-    { value: 'tax', label: 'Tax Estimator', icon: <Receipt className="h-4 w-4" /> },
+    { value: 'tax', label: 'Tax Estimator', icon: <IndianRupee className="h-4 w-4" /> },
     { value: 'pan', label: 'PAN Validator', icon: <FileCheck className="h-4 w-4" /> },
     { value: 'eligibility', label: 'Loan Eligibility', icon: <Calculator className="h-4 w-4" /> },
     { value: 'compare', label: 'Loan Comparison', icon: <Calculator className="h-4 w-4" /> },

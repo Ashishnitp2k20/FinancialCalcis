@@ -288,12 +288,21 @@ const GstCalculator = () => {
                 )}
 
                 {/* Calculate Button */}
-                <Button
-                  onClick={handleCalculate}
-                  className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90 transition-all duration-200 shadow-md"
-                >
-                  {calculationMode === 'base' ? 'Calculate' : 'Calculate Actual Amount'}
-                </Button>
+                <div className="flex flex-col md:flex-row gap-2 mt-4">
+                  <Button
+                    onClick={handleCalculate}
+                    className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90 transition-all duration-200 shadow-md"
+                  >
+                    {calculationMode === 'base' ? 'Calculate' : 'Calculate Actual Amount'}
+                  </Button>
+                  <Button
+                    onClick={reset}
+                    variant="outline"
+                    className="w-full md:w-auto"
+                  >
+                    Reset
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

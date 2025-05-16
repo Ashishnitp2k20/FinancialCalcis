@@ -37,6 +37,12 @@ const PanValidator = () => {
     setValidationMessage('');
   };
 
+  const reset = () => {
+    setPanNumber('');
+    setIsValid(null);
+    setValidationMessage('');
+  };
+
   return (
     <div className="flex flex-col items-center w-full gap-6">
       <CalculatorBanner />
@@ -65,12 +71,21 @@ const PanValidator = () => {
               />
             </div>
 
-            <Button
-              onClick={validatePAN}
-              className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
-            >
-              Validate PAN
-            </Button>
+            <div className="flex flex-col md:flex-row gap-2 mt-4">
+              <Button
+                onClick={validatePAN}
+                className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
+              >
+                Validate PAN
+              </Button>
+              <Button
+                onClick={reset}
+                variant="outline"
+                className="w-full md:w-auto"
+              >
+                Reset
+              </Button>
+            </div>
 
             {/* Validation Result */}
             {isValid !== null && (

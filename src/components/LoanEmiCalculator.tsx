@@ -31,6 +31,15 @@ const LoanEmiCalculator = () => {
     }
   };
 
+  const reset = () => {
+    setLoanAmount('');
+    setInterestRate(8.5);
+    setLoanTenure(12);
+    setEmi(0);
+    setTotalAmount(0);
+    setTotalInterest(0);
+  };
+
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -95,12 +104,21 @@ const LoanEmiCalculator = () => {
               />
             </div>
 
-            <Button
-              onClick={calculateEMI}
-              className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
-            >
-              Calculate EMI
-            </Button>
+            <div className="flex flex-col md:flex-row gap-2 mt-4">
+              <Button
+                onClick={calculateEMI}
+                className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
+              >
+                Calculate EMI
+              </Button>
+              <Button
+                onClick={reset}
+                variant="outline"
+                className="w-full md:w-auto"
+              >
+                Reset
+              </Button>
+            </div>
 
             {/* Results */}
             {emi > 0 && (

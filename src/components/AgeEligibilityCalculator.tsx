@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calculator, Info } from 'lucide-react';
+import { Calculator, Info, UserCheck } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
 import {
   Tooltip,
@@ -320,7 +320,10 @@ const AgeEligibilityCalculator = () => {
     <div className="flex flex-col items-center w-full gap-4 p-2 md:p-6">
       <CalculatorBanner />
       <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-4 animate-fade-in">
+        <div className="flex flex-col items-center text-center mt-10 mb-10 animate-fade-in">
+          <div className="inline-flex items-center justify-center p-3 rounded-full bg-gst-light-purple/20 mb-4">
+            <UserCheck className="h-8 w-8 text-gst-purple" />
+          </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1">Age Eligibility Calculator</h1>
           <p className="text-gray-600 text-base">Check your eligibility for government jobs</p>
         </div>

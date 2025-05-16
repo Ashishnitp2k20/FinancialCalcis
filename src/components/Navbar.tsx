@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Calculator, ArrowRight, CreditCard, Receipt, FileCheck, Percent, Clock, UserCheck, Award, TrendingUp, PiggyBank, BarChart3 } from 'lucide-react';
+import { Calculator, ArrowRight, CreditCard, IndianRupee, FileCheck, Percent, Clock, UserCheck, Award, TrendingUp, PiggyBank, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const calculatorList = [
   { name: 'GST Calculator', href: '#gst', icon: <Calculator className="h-4 w-4 text-blue-500" /> },
   { name: 'EMI Calculator', href: '#emi', icon: <CreditCard className="h-4 w-4 text-green-500" /> },
-  { name: 'Tax Estimator', href: '#tax', icon: <Receipt className="h-4 w-4 text-yellow-500" /> },
+  { name: 'Tax Estimator', href: '#tax', icon: <IndianRupee className="h-4 w-4 text-yellow-500" /> },
   { name: 'PAN Validator', href: '#pan', icon: <FileCheck className="h-4 w-4 text-gray-500" /> },
   { name: 'Loan Eligibility', href: '#eligibility', icon: <BarChart3 className="h-4 w-4 text-indigo-500" /> },
   { name: 'Loan Comparison', href: '#compare', icon: <TrendingUp className="h-4 w-4 text-pink-500" /> },

@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calculator } from 'lucide-react';
+import { IndianRupee } from 'lucide-react';
 import CalculatorBanner from './CalculatorBanner';
 
 const IncomeTaxEstimator = () => {
@@ -70,6 +70,18 @@ const IncomeTaxEstimator = () => {
     });
   };
 
+  const reset = () => {
+    setAnnualIncome('');
+    setDeductions({
+      hra: false,
+      standardDeduction: true,
+      nps: false,
+      homeLoan: false,
+      medicalInsurance: false,
+    });
+    setTaxDetails(null);
+  };
+
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -85,7 +97,7 @@ const IncomeTaxEstimator = () => {
         <CardContent className="p-6">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center p-3 rounded-full gst-gradient mb-4">
-              <Calculator className="h-6 w-6 text-white" />
+              <IndianRupee className="h-6 w-6 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800">Income Tax Estimator</h2>
             <p className="text-gray-600 mt-2">Calculate your tax liability for FY 2024-25</p>
@@ -165,12 +177,21 @@ const IncomeTaxEstimator = () => {
               </div>
             </div>
 
-            <Button
-              onClick={calculateTax}
-              className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
-            >
-              Calculate Tax
-            </Button>
+            <div className="flex flex-col md:flex-row gap-2 mt-4">
+              <Button
+                onClick={calculateTax}
+                className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
+              >
+                Calculate Tax
+              </Button>
+              <Button
+                onClick={reset}
+                variant="outline"
+                className="w-full md:w-auto"
+              >
+                Reset
+              </Button>
+            </div>
 
             {/* Results */}
             {taxDetails && (

@@ -144,17 +144,17 @@ const LoanEligibilityCalculator = () => {
               <Input type="number" value={rate} onChange={e => setRate(e.target.value)} placeholder="Enter annual interest rate" className="input-focus-effect" />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            <div className="flex flex-col sm:flex-row gap-2 mt-6">
+            <div className="flex flex-col md:flex-row gap-2 mt-4">
               <Button 
                 onClick={calculateEligibility}
-                className="flex-1 bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
+                className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90"
               >
                 Calculate
               </Button>
               <Button 
                 onClick={resetCalculator}
                 variant="outline"
-                className="flex-1"
+                className="w-full md:w-auto"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset

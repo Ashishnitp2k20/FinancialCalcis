@@ -185,7 +185,10 @@ const FdRdCalculator = () => {
                     ))}
                   </select>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateFD}>Calculate FD</Button>
+                <div className="flex flex-col md:flex-row gap-2 mt-4">
+                  <Button className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateFD}>Calculate FD</Button>
+                  <Button className="w-full md:w-auto" variant="outline" onClick={resetFD}>Reset</Button>
+                </div>
                 {fdResult && (
                   <>
                   <div className="mt-6 space-y-4 p-4 bg-gst-light-purple/20 rounded-lg">
@@ -203,7 +206,6 @@ const FdRdCalculator = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button type="button" variant="outline" onClick={resetFD}>Reset</Button>
                     <Button type="button" variant="secondary" onClick={handleExportFDPDF}>Export as PDF</Button>
                   </div>
                   </>
@@ -224,7 +226,10 @@ const FdRdCalculator = () => {
                   <Label>Tenure (years)</Label>
                   <Input type="number" value={rdTenure} onChange={e => setRdTenure(e.target.value)} placeholder="Enter tenure" className="input-focus-effect" />
                 </div>
-                <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateRD}>Calculate RD</Button>
+                <div className="flex flex-col md:flex-row gap-2 mt-4">
+                  <Button className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateRD}>Calculate RD</Button>
+                  <Button className="w-full md:w-auto" variant="outline" onClick={resetRD}>Reset</Button>
+                </div>
                 {rdResult && (
                   <>
                   <div className="mt-6 space-y-4 p-4 bg-gst-light-purple/20 rounded-lg">
@@ -242,7 +247,6 @@ const FdRdCalculator = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button type="button" variant="outline" onClick={resetRD}>Reset</Button>
                     <Button type="button" variant="secondary" onClick={handleExportRDPDF}>Export as PDF</Button>
                   </div>
                   </>

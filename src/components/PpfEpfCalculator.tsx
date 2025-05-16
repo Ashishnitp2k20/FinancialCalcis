@@ -193,7 +193,10 @@ const PpfEpfCalculator = () => {
                   <Label>Tenure (years)</Label>
                   <Input type="number" value={ppfTenure} onChange={e => setPpfTenure(e.target.value)} placeholder="Tenure (default 15)" className="input-focus-effect" />
                 </div>
-                <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculatePPF}>Calculate PPF</Button>
+                <div className="flex flex-col md:flex-row gap-2 mt-4">
+                  <Button className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculatePPF}>Calculate PPF</Button>
+                  <Button className="w-full md:w-auto" variant="outline" onClick={resetPPF}>Reset</Button>
+                </div>
                 {ppfResult.length > 0 && (
                   <>
                   <div className="overflow-x-auto mt-6">
@@ -233,7 +236,6 @@ const PpfEpfCalculator = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button type="button" variant="outline" onClick={resetPPF}>Reset</Button>
                     <Button type="button" variant="secondary" onClick={handleExportPPFPDF}>Export as PDF</Button>
                   </div>
                   </>
@@ -262,7 +264,10 @@ const PpfEpfCalculator = () => {
                   <Label>Number of Years</Label>
                   <Input type="number" value={epfYears} onChange={e => setEpfYears(e.target.value)} placeholder="Years" className="input-focus-effect" />
                 </div>
-                <Button className="w-full bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateEPF}>Calculate EPF</Button>
+                <div className="flex flex-col md:flex-row gap-2 mt-4">
+                  <Button className="w-full md:w-auto bg-gradient-to-r from-gst-purple to-gst-secondary-purple hover:opacity-90" onClick={calculateEPF}>Calculate EPF</Button>
+                  <Button className="w-full md:w-auto" variant="outline" onClick={resetEPF}>Reset</Button>
+                </div>
                 {epfResult.length > 0 && (
                   <>
                   <div className="overflow-x-auto mt-6">
@@ -302,7 +307,6 @@ const PpfEpfCalculator = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button type="button" variant="outline" onClick={resetEPF}>Reset</Button>
                     <Button type="button" variant="secondary" onClick={handleExportEPFPDF}>Export as PDF</Button>
                   </div>
                   </>
