@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Calculator, Copy, FileDown, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import * as html2pdf from 'html2pdf.js';
 
 const STORAGE_KEY = 'loanComparisonCalcState';
 
@@ -139,19 +138,25 @@ const LoanComparisonTool = () => {
     toast.success('Results copied to clipboard!');
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     if (!resultRef.current) return;
     
-    const element = resultRef.current;
-    const opt = {
-      margin: 1,
-      filename: 'loan-comparison-results.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      const element = resultRef.current;
+      const opt = {
+        margin: 1,
+        filename: 'loan-comparison-results.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
 
-    html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF');
+    }
   };
 
   return (
