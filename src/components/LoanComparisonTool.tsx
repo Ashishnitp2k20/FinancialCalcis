@@ -46,6 +46,13 @@ function calculateEMI(P: number, r: number, n: number, type: InterestType) {
   }
 }
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    html2pdf?: any;
+  }
+}
+
 const LoanComparisonTool = () => {
   const [offers, setOffers] = useState<LoanOffer[]>([{ ...initialOffer }]);
   const [results, setResults] = useState<LoanResult[]>([]);
@@ -140,27 +147,28 @@ const LoanComparisonTool = () => {
 
   const exportToPDF = async () => {
     if (!resultRef.current) return;
-    
-    try {
-      // Load html2pdf.js dynamically
-      const html2pdfModule = await import('html2pdf.js/dist/html2pdf.bundle.min.js');
-      const html2pdf = html2pdfModule.default;
-      
-      const element = resultRef.current;
-      const opt = {
-        margin: 1,
-        filename: 'loan-comparison-results.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
 
-      const pdf = html2pdf().set(opt);
-      await pdf.from(element).save();
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast.error('Failed to generate PDF. Please try again.');
+    // Dynamically load html2pdf.js from CDN if not already loaded
+    if (!window.html2pdf) {
+      await new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        script.onload = () => resolve();
+        script.onerror = reject;
+        document.body.appendChild(script);
+      });
     }
+
+    const element = resultRef.current;
+    const opt = {
+      margin: 1,
+      filename: 'loan-comparison-results.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    window.html2pdf().set(opt).from(element).save();
   };
 
   return (
