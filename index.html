@@ -2,22 +2,50 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239b87f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h12M6 8h12M9 13l3-3 3 3M9 17l3-3 3 3M12 3v18'/%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Fincalci Pro - Your All-in-One Financial Calculator Suite for GST, EMI, Income Tax, and PAN validation" />
-    <meta name="theme-color" content="#4F46E5" />
+    <meta name="theme-color" content="#9b87f5" />
     <title>Fincalci Pro - Financial Calculator Suite</title>
     <meta name="author" content="Ashish Kumar" />
 
     <meta property="og:title" content="FinCalci Pro" />
     <meta property="og:description" content="Lovable Generated Project + AI Powered Financial Calculator" />
     <meta property="og:type" content="website" />
+
+    <style>
+      /* Author attribution with decorative lines */
+      .author-attribution {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: system-ui, -apple-system, sans-serif;
+        color: #9b87f5;
+        font-size: 0.875rem;
+        opacity: 0.8;
+        z-index: 50;
+      }
+      .author-attribution::before,
+      .author-attribution::after {
+        content: '';
+        height: 1px;
+        width: 2rem;
+        background: linear-gradient(90deg, transparent, #9b87f5, transparent);
+      }
+      .author-attribution:hover {
+        opacity: 1;
+      }
+    </style>
   </head>
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <div class="author-attribution">
+      Crafted with ❤️ by Ashish Kumar
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
