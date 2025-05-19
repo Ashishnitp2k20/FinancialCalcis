@@ -17,6 +17,7 @@ import TimeDurationCalculator from '@/components/TimeDurationCalculator';
 import AgeEligibilityCalculator from '@/components/AgeEligibilityCalculator';
 import MeritCalculator from '@/components/MeritCalculator';
 import { Helmet } from 'react-helmet';
+import Footer from '@/components/Footer';
 
 const TAB_KEY = 'fincalciActiveTab';
 
@@ -87,34 +88,9 @@ const Index = () => {
           "description": "All-in-one suite for GST, EMI, Tax, Percentage, Merit, and more calculators. Free, accurate, and easy to use."
         }` }} />
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-b from-white to-gst-soft-gray">
-        <nav aria-label="Main navigation">
-          <Navbar />
-        </nav>
-        {/* Go to Bottom Button: under nav, right-aligned; on mobile, absolutely top right in nav */}
-        <div className="relative">
-          <div className="hidden sm:flex justify-end w-full px-4 pt-2">
-            <button
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-              className="px-4 py-2 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold flex items-center gap-1 shadow transition-all animate-bounce"
-              aria-label="Go to Bottom"
-            >
-              <svg className="h-5 w-5 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-label="Down Arrow"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              Go to Bottom
-            </button>
-          </div>
-          <div className="sm:hidden">
-            <button
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-              className="absolute right-4 top-2 z-50 px-4 py-2 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold flex items-center gap-1 shadow transition-all animate-bounce"
-              aria-label="Go to Bottom"
-            >
-              <svg className="h-5 w-5 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-label="Down Arrow"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              Go to Bottom
-            </button>
-          </div>
-        </div>
-        <main>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1">
           <div className="py-8 px-4">
             <div className="max-w-5xl mx-auto">
               <header className="text-center mb-8">
@@ -422,24 +398,7 @@ const Index = () => {
             </div>
           </div>
         </main>
-        <footer className="mt-10 w-full bg-gradient-to-t from-white via-purple-50 to-transparent shadow-t-lg px-2 sm:px-0" aria-label="Site footer">
-          <div className="max-w-3xl mx-auto flex flex-col items-center gap-2 py-3 relative">
-            <span className="text-purple-700 font-semibold text-base animate-fade-in">✨ Empower your finances, one calculation at a time!</span>
-            <span className="text-xs text-gray-500">Copyright &copy; 2025 Fincalci Pro</span>
-            <span className="text-xs text-purple-700 font-bold animate-pulse ml-1">by Ashish Kumar</span>
-            {/* Go to Top button: always bottom-right in the footer */}
-            <div className="w-full flex justify-end absolute bottom-4 right-4">
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="px-4 py-2 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold flex items-center gap-1 shadow transition-all animate-bounce"
-                aria-label="Go to Top"
-              >
-                <svg className="h-5 w-5 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-label="Up Arrow"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
-                Go to Top
-              </button>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );

@@ -69,6 +69,17 @@ const jobPresets = [
 const PROFILE_KEY = 'ageCalcUserProfile';
 const SESSION_KEY = 'ageCalcSession';
 
+const errorMessageStyle = {
+  animation: 'blink 1.5s infinite',
+  backgroundColor: 'rgba(220, 38, 38, 0.1)', // dark red background
+  border: '1px solid rgb(220, 38, 38)',
+  borderRadius: '0.375rem',
+  padding: '0.75rem',
+  marginTop: '0.5rem',
+  color: 'rgb(220, 38, 38)',
+  fontWeight: '500',
+};
+
 const AgeEligibilityCalculator = () => {
   const [dateOfBirth, setDateOfBirth] = useState<string>('');
   const [directAge, setDirectAge] = useState<string>('');
@@ -117,6 +128,20 @@ const AgeEligibilityCalculator = () => {
   };
 
   const calculateAge = () => {
+    // Validate required fields before calculation
+    if (!jobName) {
+      setError('Please select a job category');
+      return;
+    }
+    if (typeof lowerLimit !== 'number' || typeof upperLimit !== 'number') {
+      setError('Please set both lower and upper age limits');
+      return;
+    }
+    if (!referenceDate) {
+      setError('Please set a reference date');
+      return;
+    }
+
     if (inputMethod === 'dob') {
       if (!dateOfBirth) {
         setError('Please select your date of birth');
@@ -147,6 +172,10 @@ const AgeEligibilityCalculator = () => {
       }
       checkEligibilityStrict(years, months, days);
     } else {
+      if (!directAge) {
+        setError('Please enter your age');
+        return;
+      }
       const age = parseInt(directAge);
       if (isNaN(age) || age < 0) {
         setError('Please enter a valid age');
@@ -194,8 +223,34 @@ const AgeEligibilityCalculator = () => {
     setError('');
   };
 
-  // Save current eligibility check
+  // Add validation before saving a check
   const handleSaveCheck = () => {
+    // Validate required fields
+    if (!dateOfBirth && !directAge) {
+      setError('Please enter either date of birth or direct age');
+      return;
+    }
+    if (typeof lowerLimit !== 'number' || typeof upperLimit !== 'number') {
+      setError('Please set both lower and upper age limits');
+      return;
+    }
+    if (!ageDetails.years && !ageDetails.months && !ageDetails.days) {
+      setError('Please calculate age before saving');
+      return;
+    }
+    if (!jobName) {
+      setError('Please select a job category');
+      return;
+    }
+    if (!referenceDate) {
+      setError('Please set a reference date');
+      return;
+    }
+
+    // Clear any existing errors
+    setError('');
+    
+    // Proceed with saving if validation passes
     setSavedChecks(prev => [
       ...prev,
       {
@@ -275,11 +330,51 @@ const AgeEligibilityCalculator = () => {
     setRestoredFromStorage(true);
   }, []);
 
-  // Only auto-calculate age if not just restored from storage
+  // Improve auto-calculation effect with validation
   useEffect(() => {
     if (!restoredFromStorage) return;
-    if (dateOfBirth || directAge) {
+    
+    // Only calculate if all required fields are present
+    const hasRequiredInput = (dateOfBirth || directAge) && 
+      typeof lowerLimit === 'number' && 
+      typeof upperLimit === 'number' && 
+      referenceDate &&
+      jobName;
+
+    if (hasRequiredInput) {
+      // Validate dates if using date of birth
+      if (inputMethod === 'dob' && dateOfBirth) {
+        const birthDate = new Date(dateOfBirth);
+        const refDate = new Date(referenceDate);
+        if (isNaN(birthDate.getTime()) || isNaN(refDate.getTime())) {
+          setError('Invalid date format');
+          return;
+        }
+        if (birthDate > refDate) {
+          setError('Date of birth cannot be after reference date');
+          return;
+        }
+      }
+      
+      // Validate direct age if using that method
+      if (inputMethod === 'direct' && directAge) {
+        const age = parseInt(directAge);
+        if (isNaN(age) || age < 0) {
+          setError('Please enter a valid age');
+          return;
+        }
+      }
+
       calculateAge();
+    } else {
+      // Clear results if required fields are missing
+      setAgeDetails({
+        years: 0,
+        months: 0,
+        days: 0,
+        isEligible: false,
+        message: ''
+      });
     }
   }, [dateOfBirth, directAge, jobName, lowerLimit, upperLimit, includeRelax, relaxType, inputMethod, referenceDate, restoredFromStorage]);
 
@@ -316,12 +411,21 @@ const AgeEligibilityCalculator = () => {
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   }, [jobName, lowerLimit, upperLimit, includeRelax, relaxType, inputMethod, dateOfBirth, directAge, referenceDate, ageDetails]);
 
+  const styles = `
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+  `;
+
   return (
     <div className="flex flex-col items-center w-full gap-4 p-2 md:p-6">
+      <style>{styles}</style>
       <CalculatorBanner />
       <div className="w-full max-w-md mx-auto">
-        <div className="flex flex-col items-center text-center mt-10 mb-10 animate-fade-in">
-          <div className="inline-flex items-center justify-center p-3 rounded-full bg-gst-light-purple/20 mb-4">
+        <div className="flex flex-col items-center text-center mb-4 animate-fade-in">
+          <div className="inline-flex items-center justify-center p-3 rounded-full bg-gst-light-purple/20 mb-2">
             <UserCheck className="h-8 w-8 text-gst-purple" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1">Age Eligibility Calculator</h1>
@@ -329,7 +433,7 @@ const AgeEligibilityCalculator = () => {
         </div>
         <Card className="shadow-lg border border-gray-100">
           <CardContent className="p-4 md:p-6">
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {/* Job Category Input with Datalist */}
               <div>
                 <Label className="text-sm font-medium">Job Category</Label>
@@ -504,7 +608,9 @@ const AgeEligibilityCalculator = () => {
                 </div>
               )}
               {error && (
-                <p className="text-red-500 text-sm mt-1">{error}</p>
+                <div style={errorMessageStyle} role="alert">
+                  {error}
+                </div>
               )}
             </div>
           </CardContent>
