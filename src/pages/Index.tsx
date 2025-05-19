@@ -7,7 +7,7 @@ import PanValidator from '@/components/PanValidator';
 import Navbar from '@/components/Navbar';
 import FAQ from '@/components/FAQ';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calculator, IndianRupee, CreditCard, FileCheck, ChevronLeft, ChevronRight, Percent, Clock, UserCheck, Award } from 'lucide-react';
+import { Calculator, IndianRupee, CreditCard, FileCheck, ChevronLeft, ChevronRight, Percent, Clock, UserCheck, Award, Menu, X } from 'lucide-react';
 import LoanEligibilityCalculator from '@/components/LoanEligibilityCalculator';
 import LoanComparisonTool from '@/components/LoanComparisonTool';
 import FdRdCalculator from '@/components/FdRdCalculator';
@@ -25,6 +25,7 @@ const Index = () => {
   const tabsListRef = useRef<HTMLDivElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem(TAB_KEY) || 'gst');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(TAB_KEY, activeTab);
@@ -89,7 +90,7 @@ const Index = () => {
         }` }} />
       </Helmet>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
         <main className="flex-1">
           <div className="py-8 px-4">
             <div className="max-w-5xl mx-auto">
@@ -97,31 +98,19 @@ const Index = () => {
                 <h1 className="text-4xl font-bold text-gray-800 mb-2">Fincalci Pro</h1>
                 <p className="text-gray-600 text-lg">Your All-in-One Financial Calculator Suite</p>
               </header>
-              <section aria-label="Calculator Tabs">
+              <section aria-label="Calculator Tabs" className="relative">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  {/* Hamburger for mobile */}
-                  <div className="relative w-full mb-8 flex items-center">
-                    <button
-                      className="sm:hidden ml-auto p-2 rounded-md border border-gray-200 bg-white shadow"
-                      aria-label="Open menu"
-                      onClick={() => setMobileMenuOpen((open) => !open)}
-                      type="button"
-                    >
-                      {/* Hamburger icon */}
-                      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                      </svg>
-                    </button>
-                    {/* TabsList for desktop/tablet */}
+                  {/* Horizontal calculator switch bar with scrollbar */}
+                  <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gst-purple/40 scrollbar-track-transparent mb-8">
                     <TabsList
                       ref={tabsListRef}
-                      className="hidden sm:grid w-full grid-cols-4 gap-0 rounded-md bg-muted p-1 text-muted-foreground"
+                      className="flex w-max gap-2 rounded-xl bg-muted p-2 text-muted-foreground shadow-md border border-gray-100"
                     >
                       {tabOptions.map((tab) => (
                         <TabsTrigger
                           key={tab.value}
                           value={tab.value}
-                          className="flex items-center gap-2 whitespace-nowrap"
+                          className="flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-lg hover:bg-gst-light-purple/30 text-base font-medium text-gray-700 transition-colors"
                         >
                           {tab.icon}
                           {tab.label}
@@ -129,24 +118,6 @@ const Index = () => {
                       ))}
                     </TabsList>
                   </div>
-                  {/* Mobile dropdown menu */}
-                  {mobileMenuOpen && (
-                    <div className="sm:hidden w-full mb-4 bg-white rounded-lg shadow border border-gray-200 z-20 absolute left-0">
-                      {tabOptions.map((tab) => (
-                        <button
-                          key={tab.value}
-                          className={`w-full flex items-center gap-2 px-4 py-3 text-left text-gray-700 hover:bg-gst-light-purple/30 ${activeTab === tab.value ? 'font-bold bg-gst-light-purple/20' : ''}`}
-                          onClick={() => {
-                            setActiveTab(tab.value);
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          {tab.icon}
-                          {tab.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                   <TabsContent value="gst">
                     <div className="flex flex-col md:flex-row md:gap-6">
                       <div className="flex-1 mb-6 md:mb-0">
