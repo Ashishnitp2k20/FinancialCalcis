@@ -17,6 +17,8 @@ const MeritCalculator = () => {
   const [breakdown, setBreakdown] = useState('');
   const [error, setError] = useState('');
   const [showResult, setShowResult] = useState(false);
+  const [totalMainsMarks, setTotalMainsMarks] = useState('');
+  const [totalInterviewMarks, setTotalInterviewMarks] = useState('');
 
   // Load saved state on mount
   useEffect(() => {
@@ -31,6 +33,8 @@ const MeritCalculator = () => {
         setResult(state.result || '');
         setBreakdown(state.breakdown || '');
         setShowResult(state.showResult || false);
+        setTotalMainsMarks(state.totalMainsMarks || '');
+        setTotalInterviewMarks(state.totalInterviewMarks || '');
       } catch (e) {
         console.error('Error loading saved state:', e);
       }
@@ -47,9 +51,11 @@ const MeritCalculator = () => {
       result,
       breakdown,
       showResult,
+      totalMainsMarks,
+      totalInterviewMarks,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [mainsScore, interviewScore, mainsWeight, interviewWeight, result, breakdown, showResult]);
+  }, [mainsScore, interviewScore, mainsWeight, interviewWeight, result, breakdown, showResult, totalMainsMarks, totalInterviewMarks]);
 
   const reset = () => {
     setMainsScore('');
@@ -60,6 +66,8 @@ const MeritCalculator = () => {
     setBreakdown('');
     setError('');
     setShowResult(false);
+    setTotalMainsMarks('');
+    setTotalInterviewMarks('');
   };
 
   const handleCalculate = (e: React.FormEvent) => {
@@ -70,7 +78,9 @@ const MeritCalculator = () => {
     const interview = parseFloat(interviewScore);
     const mainsW = parseFloat(mainsWeight);
     const interviewW = parseFloat(interviewWeight);
-    if ([mains, interview, mainsW, interviewW].some(x => isNaN(x) || x < 0)) {
+    const totalMains = parseFloat(totalMainsMarks);
+    const totalInterview = parseFloat(totalInterviewMarks);
+    if ([mains, interview, mainsW, interviewW, totalMains, totalInterview].some(x => isNaN(x) || x < 0)) {
       setError('All values must be non-negative numbers.');
       return;
     }
@@ -79,12 +89,22 @@ const MeritCalculator = () => {
       setShowResult(false);
       return;
     }
-    const mainsPart = mains * mainsW / 100;
-    const interviewPart = interview * interviewW / 100;
-    const merit = (mainsPart + interviewPart).toFixed(2);
+    if (totalMains === 0 || totalInterview === 0) {
+      setError('Total marks must be greater than 0.');
+      return;
+    }
+    // Correct associative calculation
+    const mainsFraction = mains / totalMains;
+    const mainsWeighted = mainsFraction * mainsW;
+    const interviewFraction = interview / totalInterview;
+    const interviewWeighted = interviewFraction * interviewW;
+    const merit = (mainsWeighted + interviewWeighted).toFixed(2);
     setResult(merit);
     setBreakdown(
-      `🧮 Breakdown:\n- Mains: ${mains} × ${mainsW}% = ${mainsPart.toFixed(2)}\n- Interview: ${interview} × ${interviewW}% = ${interviewPart.toFixed(2)}\n- Final Merit Score = ${merit} / 100`
+      `Breakdown:` +
+      `\n- Mains: (${mains} / ${totalMains}) = ${mainsFraction.toFixed(3)} × ${mainsW} = ${mainsWeighted.toFixed(2)}` +
+      `\n- Interview: (${interview} / ${totalInterview}) = ${interviewFraction.toFixed(3)} × ${interviewW} = ${interviewWeighted.toFixed(2)}` +
+      `\n- Final Merit Score = ${mainsWeighted.toFixed(2)} + ${interviewWeighted.toFixed(2)} = ${merit}`
     );
     setShowResult(true);
   };
@@ -95,13 +115,15 @@ const MeritCalculator = () => {
     doc.text('Merit Calculator Result', 14, 20);
     doc.setFontSize(12);
     doc.text(`Mains Score: ${mainsScore}`, 14, 35);
-    doc.text(`Interview Score: ${interviewScore}`, 14, 45);
-    doc.text(`Mains Weight: ${mainsWeight}%`, 14, 55);
-    doc.text(`Interview Weight: ${interviewWeight}%`, 14, 65);
-    doc.text(`Result: ${result}`, 14, 75);
-    doc.text('Breakdown:', 14, 85);
+    doc.text(`Total Mains Marks: ${totalMainsMarks}`, 14, 45);
+    doc.text(`Interview Score: ${interviewScore}`, 14, 55);
+    doc.text(`Total Interview Marks: ${totalInterviewMarks}`, 14, 65);
+    doc.text(`Mains Weight: ${mainsWeight}%`, 14, 75);
+    doc.text(`Interview Weight: ${interviewWeight}%`, 14, 85);
+    doc.text(`Result: ${result}`, 14, 95);
+    doc.text('Breakdown:', 14, 105);
     breakdown.split('\n').forEach((line, idx) => {
-      doc.text(line, 18, 95 + idx * 10);
+      doc.text(line, 18, 115 + idx * 10);
     });
     doc.save('Merit-Calculator-Result.pdf');
   };
@@ -127,9 +149,23 @@ const MeritCalculator = () => {
                       type="number"
                       inputMode="decimal"
                       min="0"
+                      step="any"
                       value={mainsScore}
                       onChange={e => setMainsScore(e.target.value)}
                       placeholder="Mains Score"
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-sm font-medium">Total Mains Marks</Label>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min="1"
+                      step="any"
+                      value={totalMainsMarks}
+                      onChange={e => setTotalMainsMarks(e.target.value)}
+                      placeholder="Total Mains Marks"
                       className="rounded-lg"
                     />
                   </div>
@@ -139,9 +175,23 @@ const MeritCalculator = () => {
                       type="number"
                       inputMode="decimal"
                       min="0"
+                      step="any"
                       value={interviewScore}
                       onChange={e => setInterviewScore(e.target.value)}
                       placeholder="Interview Score"
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-sm font-medium">Total Interview Marks</Label>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min="1"
+                      step="any"
+                      value={totalInterviewMarks}
+                      onChange={e => setTotalInterviewMarks(e.target.value)}
+                      placeholder="Total Interview Marks"
                       className="rounded-lg"
                     />
                   </div>
@@ -200,13 +250,15 @@ const MeritCalculator = () => {
                 {showResult && !error && (
                   <>
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <Award className="h-8 w-8 text-blue-600" />
-                      <span className="text-4xl font-extrabold text-blue-700">{result}</span>
+                      <Award className="h-8 w-8 text-blue-600 animate-bounce" />
+                      <span className="text-4xl font-extrabold text-blue-700 drop-shadow-lg">{result}</span>
                     </div>
-                    <div className="bg-blue-50 rounded-xl p-4 mt-2 text-left shadow-sm">
-                      <div className="font-semibold text-gray-700 mb-2">🧮 Breakdown:</div>
+                    <div className="bg-gradient-to-br from-blue-50 via-white to-blue-100 rounded-xl p-6 mt-2 text-left shadow-lg border border-blue-200">
+                      <div className="font-semibold text-blue-700 mb-2 text-lg flex items-center gap-2">
+                        🧮 Calculation Breakdown
+                      </div>
                       {breakdown.split('\n').map((line, idx) => (
-                        <div key={idx} className="text-gray-700 text-base mb-1 whitespace-pre-line">{line}</div>
+                        <div key={idx} className="text-gray-800 text-base mb-1 whitespace-pre-line font-mono">{line}</div>
                       ))}
                     </div>
                     <div className="flex gap-2 mt-4">
